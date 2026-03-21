@@ -1,1 +1,1 @@
-Enhanced thermostat system developed during CS-499.
+Enhanced thermostat system.
