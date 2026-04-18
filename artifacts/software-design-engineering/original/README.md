@@ -1,1 +1,0 @@
-Original thermostat system files.
