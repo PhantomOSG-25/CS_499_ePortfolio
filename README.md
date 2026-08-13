@@ -70,10 +70,66 @@ flowchart TD
 - [`artifacts/enhanced/MultiButtonTest.py`](artifacts/enhanced/MultiButtonTest.py) - GPIO button testing utility
 - [`artifacts/original`](artifacts/original) - original project version
 - [`artifacts/enhanced`](artifacts/enhanced) - capstone-enhanced version
+- [`requirements.txt`](requirements.txt) - Python dependencies for the Raspberry Pi environment
+
+## Hardware Mapping
+
+| Component | Interface or GPIO |
+| --- | --- |
+| AHT20 sensor | I2C |
+| Mode button | GPIO 24 |
+| Increase-setpoint button | GPIO 25 |
+| Decrease-setpoint button | GPIO 12 |
+| Red heating LED | GPIO 18 |
+| Blue cooling LED | GPIO 23 |
+| LCD control/data | GPIO 17, 27, 5, 6, 13, and 26 |
+| Thermostat serial output | `/dev/ttyS0`, 115200 baud |
+| Simulator serial input | `/dev/ttyUSB0`, 115200 baud |
+
+## Raspberry Pi Setup
+
+1. Enable I2C and UART on the Raspberry Pi and connect the components shown above.
+2. Create and activate a virtual environment:
+
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+
+3. Install the hardware and application dependencies:
+
+   ```bash
+   python -m pip install --upgrade pip
+   python -m pip install -r requirements.txt
+   ```
+
+4. Run the enhanced controller:
+
+   ```bash
+   python artifacts/enhanced/Thermostat.py
+   ```
+
+5. On the connected serial-receiver system, run the simulator after confirming its serial device path:
+
+   ```bash
+   python artifacts/enhanced/ThermostatServer-Simulator.py
+   ```
+
+The controller creates `thermostat.db` at runtime. The database is intentionally excluded from version control because it contains device-generated operating history.
+
+## Verification
+
+The Python source can be syntax-checked without Raspberry Pi hardware:
+
+```bash
+python -m compileall artifacts/enhanced
+```
+
+Sensor readings, GPIO callbacks, LCD output, PWM LEDs, and UART communication require validation on the wired Raspberry Pi. The project does not claim hardware-independent automated coverage for those device behaviors.
 
 ## Hardware and Software Notes
 
-The controller is designed for a Raspberry Pi with the required sensor, display, buttons, LEDs, and serial connection. The source can be reviewed on any platform, but the hardware-dependent features require the connected Raspberry Pi components and their Python libraries.
+The controller is designed for a Raspberry Pi with the required sensor, display, buttons, LEDs, and serial connection. The source can be reviewed on any platform, but the hardware-dependent features require the connected Raspberry Pi components and their Python libraries. SQLite is initialized inside the display worker thread so the connection is created and used within the same thread.
 
 ## Code Review
 
