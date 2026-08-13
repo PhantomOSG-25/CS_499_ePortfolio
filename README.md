@@ -1,78 +1,92 @@
-# CS-499 ePortfolio – Michael Wood
+# Raspberry Pi Thermostat System
 
-This repository contains my Computer Science Capstone ePortfolio from Southern New Hampshire University. It demonstrates my ability to design, analyze, and improve software systems through structured enhancements across software design, algorithms, and database integration.
+**Computer Science Capstone ePortfolio | Python, Linux, SQLite, Raspberry Pi**
 
----
+This repository presents my Southern New Hampshire University computer science capstone. I began with a Raspberry Pi thermostat project and improved it across three areas: software design, control logic, and persistent data storage.
 
-## Project Overview
+The result is a hardware-integrated Python system that reads temperature data, accepts button input, controls heating and cooling indicators, updates an LCD, sends status data over a serial connection, and stores operating history in SQLite.
 
-The main artifact in this portfolio is a thermostat system developed using Python in a Linux-based Raspberry Pi environment. The system integrates hardware components, including a temperature sensor, LEDs, buttons, and an LCD display.
+## Project at a Glance
 
-The system is capable of:
-- Reading real-time temperature data
-- Accepting user input for system setpoints
-- Controlling heating and cooling indicators
-- Displaying system data on an LCD
-- Sending system data over a serial connection
-- 
----
+| Area | Implementation |
+| --- | --- |
+| Language | Python |
+| Platform | Raspberry Pi running Linux |
+| Sensor | AHT20 temperature sensor over I2C |
+| User input | GPIO buttons for mode and setpoint control |
+| Output | PWM LEDs, 16x2 LCD, and UART serial data |
+| Data storage | SQLite temperature and system-state history |
+| Design | State machine with off, heat, and cool modes |
 
-## Artifacts
+## System Capabilities
 
-### Original Artifacts
-Located in: artifacts/original/
-These files represent the initial version of the system before enhancements were applied.
+- Reads live temperature data and converts it to Fahrenheit.
+- Cycles between off, heat, and cool operating states.
+- Raises or lowers the temperature setpoint through physical buttons.
+- Uses red and blue LEDs to show heating and cooling status.
+- Alternates temperature and system information on a 16x2 LCD.
+- Sends state, temperature, and setpoint data through UART every 30 seconds.
+- Stores timestamped readings, operating state, temperature, and setpoint in SQLite.
+- Handles sensor, serial, and database errors without immediately terminating the program.
 
-### Enhanced Artifacts
-Located in: artifacts/enhanced/
-These files contain the improved version of the system, demonstrating applied enhancements across all required categories.
+## System Flow
 
----
+```mermaid
+flowchart TD
+    A[AHT20 sensor] --> B[Thermostat state machine]
+    C[GPIO buttons] --> B
+    B --> D[LCD and LEDs]
+    B --> E[SQLite history]
+    B --> F[UART output]
+    F --> G[Server simulator]
+```
 
-## Enhancements
+## Capstone Enhancements
 
 ### Software Design and Engineering
-- Reduced repeated code through helper functions
-- Implemented centralized debug logging
-- Improved error handling for system inputs
-- Separated system responsibilities for better modularity
-- Improved overall code structure and maintainability
+
+- Reduced repeated code by introducing focused helper functions.
+- Centralized debug logging so diagnostic output can be enabled or disabled.
+- Separated display, LED, sensor, serial, and database responsibilities.
+- Improved error handling and shutdown cleanup.
+- Added clearer comments and method documentation for maintainability.
 
 ### Algorithms and Data Structures
-- Implemented temperature buffer (hysteresis)
-- Reduced rapid system state switching
-- Improved system stability and control logic
-- Enhanced decision-making process for heating and cooling behavior
 
-### Databases
-- Integrated SQLite database for persistent data storage
-- Stored temperature readings, system states, and setpoints
-- Improved data management and organization
-- Enabled retrieval and long-term tracking of system data
+- Added a two-degree temperature buffer, or hysteresis range.
+- Reduced rapid switching near the selected setpoint.
+- Improved the decision logic for active and idle heating or cooling states.
 
----
+### Database Integration
+
+- Added an SQLite database and a structured `temperature_log` table.
+- Stored timestamped temperature, state, and setpoint readings every 30 seconds.
+- Created persistent operating history that can support later reporting or analysis.
+
+## Repository Guide
+
+- [`artifacts/enhanced/Thermostat.py`](artifacts/enhanced/Thermostat.py) - enhanced thermostat controller
+- [`artifacts/enhanced/ThermostatServer-Simulator.py`](artifacts/enhanced/ThermostatServer-Simulator.py) - serial-data receiver and simulator
+- [`artifacts/enhanced/MultiButtonTest.py`](artifacts/enhanced/MultiButtonTest.py) - GPIO button testing utility
+- [`artifacts/original`](artifacts/original) - original project version
+- [`artifacts/enhanced`](artifacts/enhanced) - capstone-enhanced version
+
+## Hardware and Software Notes
+
+The controller is designed for a Raspberry Pi with the required sensor, display, buttons, LEDs, and serial connection. The source can be reviewed on any platform, but the hardware-dependent features require the connected Raspberry Pi components and their Python libraries.
+
+## Code Review
+
+I recorded a walkthrough of the original system, the identified improvement opportunities, and the planned enhancements:
+
+[Watch the capstone code review](https://youtu.be/J5aNiBfb9lc)
 
 ## Skills Demonstrated
 
-- Software design and modular development
-- Algorithm improvement and system optimization
-- Database integration and data management
-- Debugging and error handling
-- Embedded systems development using Python and Linux
-- System-level problem solving and performance improvement
-
----
-
-## Code Review Video
-
-A full code review of the system, including analysis and planned enhancements, is available at the following link:
-
-https://youtu.be/J5aNiBfb9lc
-
----
+Python development, Linux, embedded systems, state-machine design, SQLite, serial communication, modular design, debugging, error handling, technical documentation, and system-level troubleshooting.
 
 ## Author
 
-Michael Wood  
-Southern New Hampshire University  
-Bachelor of Science in Computer Science
+Michael B. Wood  
+Bachelor of Science in Computer Science, Software Engineering concentration  
+Southern New Hampshire University | Coursework completing August 2026
