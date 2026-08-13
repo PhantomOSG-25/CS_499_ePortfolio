@@ -1,6 +1,6 @@
 # Raspberry Pi Thermostat System
 
-[![Python syntax](https://github.com/PhantomOSG-25/CS_499_ePortfolio/actions/workflows/syntax.yml/badge.svg)](https://github.com/PhantomOSG-25/CS_499_ePortfolio/actions/workflows/syntax.yml)
+[![Python syntax](https://github.com/PhantomOSG-25/raspberry-pi-thermostat/actions/workflows/syntax.yml/badge.svg)](https://github.com/PhantomOSG-25/raspberry-pi-thermostat/actions/workflows/syntax.yml)
 
 **Computer Science Capstone ePortfolio | Python, Linux, SQLite, Raspberry Pi**
 
