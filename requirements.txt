@@ -1,0 +1,6 @@
+Adafruit-Blinka
+adafruit-circuitpython-ahtx0
+adafruit-circuitpython-charlcd
+gpiozero
+pyserial
+python-statemachine
