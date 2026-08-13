@@ -80,22 +80,26 @@ ser = serial.Serial(
 # -----------------------------
 # Database (SQLite)
 # -----------------------------
-# Create a SQLite database connection and set up the table used
-# to store thermostat readings.
-conn = sqlite3.connect("thermostat.db")
-cursor = conn.cursor()
+DATABASE_PATH = "thermostat.db"
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS temperature_log (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    timestamp TEXT,
-    state TEXT,
-    temperature INTEGER,
-    setpoint INTEGER
-)
-""")
 
-conn.commit()
+def initialize_database() -> sqlite3.Connection:
+    """
+    Create the SQLite connection in the thread that will use it and
+    ensure the temperature log table exists.
+    """
+    connection = sqlite3.connect(DATABASE_PATH)
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS temperature_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            state TEXT NOT NULL,
+            temperature INTEGER NOT NULL,
+            setpoint INTEGER NOT NULL
+        )
+    """)
+    connection.commit()
+    return connection
 
 # -----------------------------
 # LEDs (PWM)
@@ -359,7 +363,7 @@ class TemperatureMachine(StateMachine):
         return f"{self.current_state.id},{temp},{self.setPoint}"
 
     # ----- Database logging -----
-    def log_to_database(self):
+    def log_to_database(self, connection: sqlite3.Connection):
         """
         Store the current thermostat reading in the database.
         """
@@ -367,12 +371,12 @@ class TemperatureMachine(StateMachine):
             temp = floor(self.getFahrenheit())
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            cursor.execute("""
+            connection.execute("""
                 INSERT INTO temperature_log (timestamp, state, temperature, setpoint)
                 VALUES (?, ?, ?, ?)
             """, (timestamp, self.current_state.id, temp, self.setPoint))
 
-            conn.commit()
+            connection.commit()
             debug_log("Database log saved")
 
         except Exception as e:
@@ -392,38 +396,41 @@ class TemperatureMachine(StateMachine):
         """
         counter = 1
         altCounter = 1
+        connection = initialize_database()
 
-        while not self.endDisplay:
-            debug_log("Processing Display Info...")
+        try:
+            while not self.endDisplay:
+                debug_log("Processing Display Info...")
 
-            now = datetime.now()
-            line1 = now.strftime("%m/%d %H:%M:%S")
+                now = datetime.now()
+                line1 = now.strftime("%m/%d %H:%M:%S")
 
-            # Alternate line 2 between temperature and state/setpoint.
-            if altCounter < 6:
-                line2 = f"Temp:{floor(self.getFahrenheit())}F"
-                altCounter += 1
-            else:
-                line2 = f"{self.current_state.id.upper()} SP:{self.setPoint}F"
-                altCounter += 1
-                if altCounter >= 11:
-                    self.updateLights()
-                    altCounter = 1
+                # Alternate line 2 between temperature and state/setpoint.
+                if altCounter < 6:
+                    line2 = f"Temp:{floor(self.getFahrenheit())}F"
+                    altCounter += 1
+                else:
+                    line2 = f"{self.current_state.id.upper()} SP:{self.setPoint}F"
+                    altCounter += 1
+                    if altCounter >= 11:
+                        self.updateLights()
+                        altCounter = 1
 
-            screen.update(line1, line2)
+                screen.update(line1, line2)
 
-            # Every 30 seconds, send serial output and log to database.
-            debug_log(f"Counter: {counter}")
-            if (counter % 30) == 0:
-                ser.write((self.setupSerialOutput() + "\n").encode())
-                self.log_to_database()
-                counter = 1
-            else:
-                counter += 1
+                # Every 30 seconds, send serial output and log to database.
+                debug_log(f"Counter: {counter}")
+                if (counter % 30) == 0:
+                    ser.write((self.setupSerialOutput() + "\n").encode())
+                    self.log_to_database(connection)
+                    counter = 1
+                else:
+                    counter += 1
 
-            sleep(1)
-
-        screen.cleanup()
+                sleep(1)
+        finally:
+            connection.close()
+            screen.cleanup()
 
 
 # -----------------------------
@@ -459,11 +466,5 @@ while repeat:
         # Close the serial connection safely.
         try:
             ser.close()
-        except Exception:
-            pass
-
-        # Close the database connection safely.
-        try:
-            conn.close()
         except Exception:
             pass
