@@ -1,5 +1,7 @@
 # Raspberry Pi Thermostat System
 
+[![Python syntax](https://github.com/PhantomOSG-25/CS_499_ePortfolio/actions/workflows/syntax.yml/badge.svg)](https://github.com/PhantomOSG-25/CS_499_ePortfolio/actions/workflows/syntax.yml)
+
 **Computer Science Capstone ePortfolio | Python, Linux, SQLite, Raspberry Pi**
 
 This repository presents my Southern New Hampshire University computer science capstone. I began with a Raspberry Pi thermostat project and improved it across three areas: software design, control logic, and persistent data storage.
